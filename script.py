@@ -1,4 +1,3 @@
-import PyQt5 as p
 import mysql.connector
 
 con = mysql.connector.connect(host="localhost", user="root", password="admin", database="textit")
@@ -20,18 +19,15 @@ def add_user():
     #give necessary feedback in GUI (loading icon and then navigation to the next page)
 
 def forgot_password(user):
-    t = (user,)
-    cur.execute("select username from users where username=%s", t)
-    result = cur.fetchall()
+    cur.execute("select username from users where username=%s", (user,))
+    result1 = cur.fetchall()
 
-    if result:
-        ph_check = int(input("Enter your phone number to validate:"))
-        cur.execute("select phone from users where username=%s", t)
-        ph_tuple = cur.fetchall()
-        ph = ph_tuple[0]
-        #error over here... unable to compare ph and ph_check in line 33
-        if ph == ph_check:
+    if result1:
+        ph = int(input("Enter the phone number:"))
+        cur.execute("select phone from users where username=%s and phone=%s", (user,ph))
+        result2 = cur.fetchall()
 
+        if result2:
             new_password = input("Enter new password:")
             cur.execute("update users set password=%s where username=%s",(new_password,user))
             con.commit()
@@ -40,7 +36,5 @@ def forgot_password(user):
             print("Phone number doesn't match")
     else:
         print("User doesn't exist")
-
-u = input("Enter username to change the password:")
-forgot_password(u)
-
+    #for this function, ask the user first for username, check via the function and proceed for phone number only if the username exists, as programmed in the function. then ask for phone number and validate. replace the inputs and texts with appropriate labels and text boxes.
+    
