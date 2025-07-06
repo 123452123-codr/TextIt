@@ -9,7 +9,7 @@ def signUp():
     name = input("Enter the name:")
     phone = int(input("Enter phone number:"))
     password = input("Enter password:")
-    #later, convert the above to GUI with pyqt5
+    #later, convert the above to GUI with pyqt5 meh meh meh
 
     comm = "insert into users (username,name,phone,password) values(%s,%s,%s,%s)"
     val = (username,name,phone,password)
