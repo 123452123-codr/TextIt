@@ -32,8 +32,7 @@ def signUp():
     name = input("Enter the name:")
     phone = int(input("Enter phone number:"))
     password = input("Enter password:")
-    #later, convert the above to GUI with pyqt5
-
+    #later, convert the above to GUI with pyqt5 meh meh meh
 
     comm = "insert into users (username,name,phone,password) values(%s,%s,%s,%s)"
     val = (username,name,phone,password)
@@ -75,12 +74,17 @@ def createChat(username):
     cur.execute("select username from users where username=%s",(username,))
     r = cur.fetchall()
     if r:
+        global members, t_name
         t_name = self_username+"_"+username
-        cur.execute("create table %s(%s not null,%s not null)",(t_name,self_username,username))
+        members = (self_username, username)
+        cur.execute("create table %s(Sender not null, Receiver not null, Message not null)",(t_name,))
+        message = ""
         con.commit()
 
-
-
+def chatting(message):
+    if message != "":
+        cur.execute("insert into %s values(%s, %s, %s)",(t_name, members[0], members[1], message))
+        print("message inserted successfully")
 
 
 
