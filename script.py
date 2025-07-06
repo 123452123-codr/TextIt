@@ -4,14 +4,16 @@ con = mysql.connector.connect(host="localhost", user="root", password="admin", d
 cur = con.cursor()
 
 import sys
-from PyQt5.QtWidgets import QApplication,QMainWindow,QLabel   #importing widgets(for textboxes,buttons etc..)
+from PyQt5.QtWidgets import QApplication,QMainWindow,QLabel  
+from pyqt5.QtGui import QFont
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("CHATTING APP MADE BY GEEKS")
         self.setGeometry(0,0,1000,1000) 
-        label=Qlabel
-
+        label=Qlabel("Username:")
+        label.setfont(QFont("Calibri",45))
+        label.setGeometry(0,0,500,100)
                                     
 
 def main():
