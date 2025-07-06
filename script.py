@@ -4,10 +4,12 @@ con = mysql.connector.connect(host="localhost", user="root", password="admin", d
 cur = con.cursor()
 
 import sys
-from PyQt5.QtWidgets import QApplication,QMainWindow
+from PyQt5.QtWidgets import QApplication,QMainWindow       #importing widgets(for textboxes,buttons etc..)
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+
 def main():
     app=QApplication(sys.argv)
     window=MainWindow()
