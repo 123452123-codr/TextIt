@@ -3,13 +3,28 @@ import mysql.connector
 con = mysql.connector.connect(host="localhost", user="root", password="admin", database="textit")
 cur = con.cursor()
 
+import sys
+from PyQt5.QtWidgets import QApplication,QMainWindow
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+def main():
+    app=QApplication(sys.argv)
+    window=MainWindow()
+    window.show()
+    sys.exit(app.exec_())
+
+if __name__=="__main__":
+    main()
+
+
 def signUp():
 
     username = input("Enter the username:")
     name = input("Enter the name:")
     phone = int(input("Enter phone number:"))
     password = input("Enter password:")
-    #later, convert the above to GUI with pyqt5
+    #later, convert the above to GUI with pyqt5 meh meh meh
 
     comm = "insert into users (username,name,phone,password) values(%s,%s,%s,%s)"
     val = (username,name,phone,password)
