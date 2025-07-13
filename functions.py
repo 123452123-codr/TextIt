@@ -75,9 +75,9 @@ def sendMessage(message):
         pass
 
 def receiveMessage():
-    cur.execute("select * %s where id=(select last_insert_id())")
+    cur.execute("select * from %s where id=(select last_insert_id())")
     message_data = cur.fetchall()
-    
+
 
     return message_data
 
