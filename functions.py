@@ -1,5 +1,6 @@
 import mysql.connector
 from cryptography.fernet import Fernet
+import datetime
 
 con = mysql.connector.connect(host="localhost", user="root", password="admin", database="textit")
 cur = con.cursor()
@@ -57,21 +58,28 @@ def createChat(username):
         global members, table_name
         table_name = self_username+"_&_"+username
         members = (self_username, username)
-        cur.execute("create table %s(Sender not null, Receiver not null, Message not null)",(table_name,))
+        cur.execute("create table %s(ID int auto_increment primary key, Sender not null, Receiver not null, Message not null, Date_of_message date,Time_of_message time)",(table_name,))
         message = ""
         con.commit()
 
 def sendMessage(message):
     if message != " ":
         encrypted_message = f.encrypt(message)
-        cur.execute("insert into %s values(%s, %s, %s)",(table_name, members[0], members[1], encrypted_message))
+        x = datetime.datetime.now()
+        date = x.date()
+        time = x.time()
+        cur.execute("insert into %s(sender,receiver,message,date_of_message,time_of_message) values(%s, %s, %s)",(table_name, members[0], members[1], encrypted_message,date,time))
         print("message inserted successfully")
         con.commit()
     else:
         pass
 
 def receiveMessage():
-    pass
+    cur.execute("select * %s where id=(select last_insert_id())")
+    message_data = cur.fetchall()
+    
+
+    return message_data
 
 def removeChat(chatname):
     cur.execute("drop table %s",(chatname,))
