@@ -1,44 +1,21 @@
 import mysql.connector
+from cryptography.fernet import Fernet
 
 con = mysql.connector.connect(host="localhost", user="root", password="admin", database="textit")
 cur = con.cursor()
 
-import sys
-from PyQt5.QtWidgets import QApplication,QMainWindow,QLabel  
-from pyqt5.QtGui import QFont
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("CHATTING APP MADE BY GEEKS")
-        self.setGeometry(0,0,1000,1000) 
-        label=Qlabel("Username:")
-        label.setfont(QFont("Calibri",45))
-        label.setGeometry(0,0,500,100)
-                                    
+key = Fernet.generate_key()
+f = Fernet(key)
 
-def main():
-    app=QApplication(sys.argv)
-    window=MainWindow()
-    window.show()
-    sys.exit(app.exec_())
-
-if __name__=="__main__":
-    main()
-
-
-def signUp():
-
-    username = input("Enter the username:")
-    name = input("Enter the name:")
-    phone = int(input("Enter phone number:"))
-    password = input("Enter password:")
+def signUp(username,name,phone,password):
     #later, convert the above to GUI with pyqt5 
-
-    comm = "insert into users (username,name,phone,password) values(%s,%s,%s,%s)"
-    val = (username,name,phone,password)
+    status = "Account created"
+    comm = "insert into users (username,name,phone,password,status) values(%s,%s,%s,%s,%s)"
+    val = (username,name,phone,password,status)
     cur.execute(comm,val)
 
     con.commit()
+    return True
     #give necessary feedback in GUI (loading icon and then navigation to the next page)
 
 def forgotPassword(user):
@@ -67,28 +44,37 @@ def signIn(username, password):
     if x:
         global self_username
         self_username = username
-        pass
+        cur.execute("update users set status=%s where username=%s",("Signed In",self_username))
+        con.commit()
         #insert appropriate GUI functions for moving on to chat screen.
+    else:
+        print("User not found.")
 
 def createChat(username):
     cur.execute("select username from users where username=%s",(username,))
     r = cur.fetchall()
     if r:
-        global members, t_name
-        t_name = self_username+"_"+username
+        global members, table_name
+        table_name = self_username+"_&_"+username
         members = (self_username, username)
-        cur.execute("create table %s(Sender not null, Receiver not null, Message not null)",(t_name,))
+        cur.execute("create table %s(Sender not null, Receiver not null, Message not null)",(table_name,))
         message = ""
         con.commit()
 
-def chatting(message):
-    if message != "":
-        cur.execute("insert into %s values(%s, %s, %s)",(t_name, members[0], members[1], message))
+def sendMessage(message):
+    if message != " ":
+        encrypted_message = f.encrypt(message)
+        cur.execute("insert into %s values(%s, %s, %s)",(table_name, members[0], members[1], encrypted_message))
         print("message inserted successfully")
+        con.commit()
+    else:
+        pass
 
+def receiveMessage():
+    pass
 
-
-
-
-
+def removeChat(chatname):
+    cur.execute("drop table %s",(chatname,))
+    con.commit()
+    print("Chat deleted successfully.")
 
