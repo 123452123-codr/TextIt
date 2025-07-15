@@ -68,7 +68,7 @@ def sendMessage(message):
         x = datetime.datetime.now()
         date = x.date()
         time = x.time()
-        cur.execute("insert into %s(sender,receiver,message,date_of_message,time_of_message) values(%s, %s, %s)",(table_name, members[0], members[1], encrypted_message,date,time))
+        cur.execute("insert into %s(sender,receiver,message,date_of_message,time_of_message) values(%s, %s, %s, %s, %s)",(table_name, members[0], members[1], encrypted_message, date, time))
         print("message inserted successfully")
         con.commit()
     else:
