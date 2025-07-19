@@ -9,10 +9,11 @@ key = Fernet.generate_key()
 f = Fernet(key)
 
 def signUp(username,name,phone,password):
-    #later, convert the above to GUI with pyqt5 
     status = "Account created"
+    encoded_password = str(password).encode()
+    encrypted_password = f.encrypt(encoded_password)
     comm = "insert into users (username,name,phone,password,status) values(%s,%s,%s,%s,%s)"
-    val = (username,name,phone,password,status)
+    val = (username,name,phone,encrypted_password,status)
     cur.execute(comm,val)
 
     con.commit()
@@ -30,17 +31,20 @@ def forgotPassword(user):
 
         if result2:
             new_password = input("Enter new password:")
-            cur.execute("update users set password=%s where username=%s",(new_password,user))
+            encoded_password = new_password.encode()
+            new_encrypted_password = f.encrypt(encoded_password)
+            cur.execute("update users set password=%s where username=%s",(new_encrypted_password,user))
             con.commit()
-            print("password updated successfully")
         else:
-            print("Phone number doesn't match")
+            return ("Phone number doesn't match")
     else:
-        print("User doesn't exist")
+        return ("User doesn't exist")
     #for this function, ask the user first for username, check via the function and proceed for phone number only if the username exists, as programmed in the function. then ask for phone number and validate. replace the inputs and texts with appropriate labels and text boxes.
 
 def signIn(username, password):
-    cur.execute("select password from users where username=%s and password=%s",(username, password))
+    encoded_password = str(password).encode()
+    enc_pass = f.encrypt(encoded_password)
+    cur.execute("select password from users where username=%s and password=%s",(username, enc_pass))
     x = cur.fetchall()
     if x:
         global self_username
@@ -49,7 +53,7 @@ def signIn(username, password):
         con.commit()
         #insert appropriate GUI functions for moving on to chat screen.
     else:
-        print("User not found.")
+        return ("User not found.")
 
 def createChat(username):
     cur.execute("select username from users where username=%s",(username,))
@@ -64,12 +68,12 @@ def createChat(username):
 
 def sendMessage(message):
     if message != " ":
-        encrypted_message = f.encrypt(message)
+        encoded_message = str(message).encode()
+        encrypted_message = f.encrypt(encoded_message)
         x = datetime.datetime.now()
         date = x.date()
         time = x.time()
         cur.execute("insert into %s(sender,receiver,message,date_of_message,time_of_message) values(%s, %s, %s, %s, %s)",(table_name, members[0], members[1], encrypted_message, date, time))
-        print("message inserted successfully")
         con.commit()
     else:
         pass
@@ -78,8 +82,6 @@ def receiveMessage():
     cur.execute("select * from %s where id=(select last_insert_id())")
     message_data = cur.fetchall()
 
-
-    return message_data
 
 def removeChat(chatname):
     cur.execute("drop table %s",(chatname,))
