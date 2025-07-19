@@ -2,8 +2,19 @@ import mysql.connector
 from cryptography.fernet import Fernet
 import datetime
 
-con = mysql.connector.connect(host="localhost", user="root", password="admin", database="textit")
-cur = con.cursor()
+try:
+    con = mysql.connector.connect(
+        host="localhost",
+        user="root", 
+        password="admin", 
+        database="textit", 
+        charset="utf8"
+    )
+    if con.is_connected():
+        cur = con.cursor()
+        
+except mysql.connector.Error as err:
+    print("Error connecting to server:",err)
 
 key = Fernet.generate_key()
 f = Fernet(key)
@@ -60,11 +71,12 @@ def createChat(username):
     r = cur.fetchall()
     if r:
         global members, table_name
-        table_name = self_username+"_&_"+username
+        table_name = self_username+"_"+username
         members = (self_username, username)
-        cur.execute("create table %s(ID int auto_increment primary key, Sender not null, Receiver not null, Message not null, Date_of_message date,Time_of_message time)",(table_name,))
+        cur.execute("create table %s(ID int auto_increment primary key, Sender not null, Receiver not null, Message not null, Date_of_message date not null,Time_of_message time not null)",(table_name,))
         message = ""
         con.commit()
+        return message
 
 def sendMessage(message):
     if message != " ":
@@ -80,11 +92,19 @@ def sendMessage(message):
 
 def receiveMessage():
     cur.execute("select * from %s where id=(select last_insert_id())")
-    message_data = cur.fetchall()
+    message_data = cur.fetchone()
+    encrypted_message = message_data[2]
+    decrypted_message = f.decrypt(encrypted_message)
+    message = decrypted_message.decode()
 
+    return message
 
 def removeChat(chatname):
     cur.execute("drop table %s",(chatname,))
     con.commit()
-    print("Chat deleted successfully.")
+    return ("Chat deleted successfully.")
 
+def signOut():
+    cur.execute("update users set status=%s where username=%s",("Signed Out", self_username))
+    con.commit()
+    return ("Logged out")
