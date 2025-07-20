@@ -80,24 +80,19 @@ def createChat(username):
 
 def sendMessage(message):
     if message != " ":
-        encoded_message = str(message).encode()
-        encrypted_message = f.encrypt(encoded_message)
         x = datetime.datetime.now()
         date = x.date()
         time = x.time()
-        cur.execute("insert into %s(sender,receiver,message,date_of_message,time_of_message) values(%s, %s, %s, %s, %s)",(table_name, members[0], members[1], encrypted_message, date, time))
+        cur.execute("insert into %s(sender,receiver,message,date_of_message,time_of_message) values(%s, %s, %s, %s, %s)",(table_name, members[0], members[1], message, date, time))
         con.commit()
     else:
         pass
 
 def receiveMessage():
     cur.execute("select * from %s where id=(select last_insert_id())")
-    message_data = cur.fetchone()
-    encrypted_message = message_data[2]
-    decrypted_message = f.decrypt(encrypted_message)
-    message = decrypted_message.decode()
-
-    return message
+    message = cur.fetchall()
+    s,r,m,d,t = message
+    return s,r,m,d,t
 
 def removeChat(chatname):
     cur.execute("drop table %s",(chatname,))
@@ -108,3 +103,14 @@ def signOut():
     cur.execute("update users set status=%s where username=%s",("Signed Out", self_username))
     con.commit()
     return ("Logged out")
+
+def deleteAccount():
+    cur.execute("show tables from textit where Tables_in_textit like '%{}%'".format(self_username))
+    tables = cur.fetchall()
+    for i in tables:
+        removeChat(i)
+
+    cur.execute("delete from users where username=%s",(self_username,))
+    con.commit()
+
+    return ("Account deleted successfully")
