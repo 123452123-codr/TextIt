@@ -65,7 +65,7 @@ class ChatApp(QWidget):
             sys.exit(1)
 
     def initUI(self):
-        self.setWindowTitle('Chat Application (MySQL)')
+        self.setWindowTitle('Text It Application (Login Window)')
         self.setGeometry(100, 100, 800, 600)
         
         # Stacked widgets for different views
