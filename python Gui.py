@@ -1,21 +1,77 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QLineEdit, QPushButton, QLabel, QListWidget, 
-                             QStackedWidget, QMessageBox)
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+                             QLineEdit, QPushButton, QLabel, QListWidget,
+                             QStackedWidget, QMessageBox, QTextEdit)
+from PyQt5.QtCore import Qt
+import mysql.connector
+from datetime import datetime
+from mysql.connector import Error
 
 class ChatApp(QWidget):
     def __init__(self):
         super().__init__()
+        self.current_user = None
+        self.db_conn = self.create_db_connection()
+        self.init_db_tables()
         self.initUI()
-    
+
+    def create_db_connection(self):
+        try:
+            conn = mysql.connector.connect(
+                host='localhost',
+                user='root',        # Change to your MySQL username
+                password='password' # Change to your MySQL password
+            )
+            return conn
+        except Error as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to connect to MySQL: {e}")
+            sys.exit(1)
+
+    def init_db_tables(self):
+        try:
+            cursor = self.db_conn.cursor()
+            
+            # Create database if not exists
+            cursor.execute("CREATE DATABASE IF NOT EXISTS chat_app")
+            cursor.execute("USE chat_app")
+            
+            # Create users table
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                phone VARCHAR(20) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            ''')
+            
+            # Create messages table
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS messages (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                sender_id INT NOT NULL,
+                receiver_id INT NOT NULL,
+                message TEXT NOT NULL,
+                sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (sender_id) REFERENCES users(id),
+                FOREIGN KEY (receiver_id) REFERENCES users(id)
+            )
+            ''')
+            
+            self.db_conn.commit()
+        except Error as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to create tables: {e}")
+            sys.exit(1)
+
     def initUI(self):
-        self.setWindowTitle('Chat Application')
-        self.setGeometry(100, 100, 400, 500)
+        self.setWindowTitle('Chat Application (MySQL)')
+        self.setGeometry(100, 100, 800, 600)
         
-        # Stacked widgets to handle different views
+        # Stacked widgets for different views
         self.stackedLayout = QStackedWidget()
         
-        # Sign In Page (default view)
+        # Sign In Page
         self.signInPage = QWidget()
         self.setupSignIn()
         self.stackedLayout.addWidget(self.signInPage)
@@ -30,16 +86,22 @@ class ChatApp(QWidget):
         self.setupContacts()
         self.stackedLayout.addWidget(self.contactsPage)
         
+        # Chat Page
+        self.chatPage = QWidget()
+        self.setupChat()
+        self.stackedLayout.addWidget(self.chatPage)
+        
         # Main layout
         mainLayout = QVBoxLayout()
         mainLayout.addWidget(self.stackedLayout)
         self.setLayout(mainLayout)
-    
+
     def setupSignIn(self):
         layout = QVBoxLayout()
         
-        header = QLabel("Welcome to ChatApp")
+        header = QLabel("Welcome to MySQL ChatApp")
         header.setStyleSheet("font-size: 20px; font-weight: bold;")
+        header.setAlignment(Qt.AlignCenter)
         
         self.usernameInput = QLineEdit()
         self.usernameInput.setPlaceholderText("Username")
@@ -52,23 +114,26 @@ class ChatApp(QWidget):
         signInButton.clicked.connect(self.handleSignIn)
         
         signUpButton = QPushButton("Create Account")
-        signUpButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(1))  # Go to sign-up
+        signUpButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(1))
         
         layout.addWidget(header)
+        layout.addSpacing(20)
         layout.addWidget(QLabel("Username:"))
         layout.addWidget(self.usernameInput)
         layout.addWidget(QLabel("Password:"))
         layout.addWidget(self.passwordInput)
+        layout.addSpacing(20)
         layout.addWidget(signInButton)
         layout.addWidget(signUpButton)
         
         self.signInPage.setLayout(layout)
-    
+
     def setupSignUp(self):
         layout = QVBoxLayout()
         
         header = QLabel("Create New Account")
         header.setStyleSheet("font-size: 20px; font-weight: bold;")
+        header.setAlignment(Qt.AlignCenter)
         
         self.newUsername = QLineEdit()
         self.newUsername.setPlaceholderText("Username")
@@ -81,6 +146,9 @@ class ChatApp(QWidget):
         self.confirmPassword.setPlaceholderText("Confirm Password")
         self.confirmPassword.setEchoMode(QLineEdit.Password)
         
+        self.phoneInput = QLineEdit()
+        self.phoneInput.setPlaceholderText("Phone Number")
+        
         signUpButton = QPushButton("Submit")
         signUpButton.clicked.connect(self.handleSignUp)
         
@@ -88,57 +156,235 @@ class ChatApp(QWidget):
         backButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(0))
         
         layout.addWidget(header)
+        layout.addSpacing(20)
         layout.addWidget(QLabel("Username:"))
         layout.addWidget(self.newUsername)
         layout.addWidget(QLabel("Password:"))
         layout.addWidget(self.newPassword)
         layout.addWidget(QLabel("Confirm Password:"))
         layout.addWidget(self.confirmPassword)
+        layout.addWidget(QLabel("Phone Number:"))
+        layout.addWidget(self.phoneInput)
+        layout.addSpacing(20)
         layout.addWidget(signUpButton)
         layout.addWidget(backButton)
         
         self.signUpPage.setLayout(layout)
-    
+
     def setupContacts(self):
         layout = QVBoxLayout()
         
         self.contactsList = QListWidget()
-        self.contactsList.addItems(["Alice", "Bob", "Charlie", "David"])
+        self.contactsList.itemClicked.connect(self.startChat)
         
         logoutButton = QPushButton("Logout")
-        logoutButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(0))
+        logoutButton.clicked.connect(self.logout)
+        
+        refreshButton = QPushButton("Refresh Contacts")
+        refreshButton.clicked.connect(self.loadContacts)
         
         layout.addWidget(QLabel("Your Contacts:"))
         layout.addWidget(self.contactsList)
+        layout.addWidget(refreshButton)
         layout.addWidget(logoutButton)
         
         self.contactsPage.setLayout(layout)
-    
+        self.loadContacts()
+
+    def setupChat(self):
+        layout = QVBoxLayout()
+        
+        self.chatPartnerLabel = QLabel()
+        self.chatPartnerLabel.setStyleSheet("font-size: 16px; font-weight: bold;")
+        self.chatPartnerLabel.setAlignment(Qt.AlignCenter)
+        
+        self.chatHistory = QTextEdit()
+        self.chatHistory.setReadOnly(True)
+        
+        self.messageInput = QTextEdit()
+        self.messageInput.setMaximumHeight(100)
+        
+        sendButton = QPushButton("Send")
+        sendButton.clicked.connect(self.sendMessage)
+        
+        backButton = QPushButton("Back to Contacts")
+        backButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(2))
+        
+        buttonLayout = QHBoxLayout()
+        buttonLayout.addWidget(backButton)
+        buttonLayout.addWidget(sendButton)
+        
+        layout.addWidget(self.chatPartnerLabel)
+        layout.addWidget(self.chatHistory)
+        layout.addWidget(QLabel("Your Message:"))
+        layout.addWidget(self.messageInput)
+        layout.addLayout(buttonLayout)
+        
+        self.chatPage.setLayout(layout)
+
     def handleSignIn(self):
         username = self.usernameInput.text()
         password = self.passwordInput.text()
         
-        # Simple validation (replace with database check)
-        if username and password:
-            self.stackedLayout.setCurrentIndex(2)  # Go to contacts
-        else:
+        if not username or not password:
             QMessageBox.warning(self, "Error", "Please enter both username and password")
-    
+            return
+        
+        try:
+            cursor = self.db_conn.cursor(dictionary=True)
+            cursor.execute("USE chat_app")
+            cursor.execute("SELECT id, username FROM users WHERE username = %s AND password = %s", 
+                         (username, password))
+            user = cursor.fetchone()
+            
+            if user:
+                self.current_user = {'id': user['id'], 'username': user['username']}
+                self.stackedLayout.setCurrentIndex(2)
+                self.usernameInput.clear()
+                self.passwordInput.clear()
+            else:
+                QMessageBox.warning(self, "Error", "Invalid username or password")
+        except Error as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to sign in: {e}")
+
     def handleSignUp(self):
         username = self.newUsername.text()
         password = self.newPassword.text()
         confirm = self.confirmPassword.text()
+        phone = self.phoneInput.text()
         
         if not username or not password:
             QMessageBox.warning(self, "Error", "Username and password are required")
-        elif password != confirm:
+            return
+        if password != confirm:
             QMessageBox.warning(self, "Error", "Passwords do not match")
-        else:
+            return
+        if not phone:
+            QMessageBox.warning(self, "Error", "Phone number is required")
+            return
+        
+        try:
+            cursor = self.db_conn.cursor()
+            cursor.execute("USE chat_app")
+            cursor.execute("INSERT INTO users (username, password, phone) VALUES (%s, %s, %s)", 
+                         (username, password, phone))
+            self.db_conn.commit()
+            
             QMessageBox.information(self, "Success", "Account created successfully!")
-            self.stackedLayout.setCurrentIndex(0)  # Return to sign-in
+            self.stackedLayout.setCurrentIndex(0)
             self.newUsername.clear()
             self.newPassword.clear()
             self.confirmPassword.clear()
+            self.phoneInput.clear()
+        except Error as e:
+            QMessageBox.warning(self, "Error", f"Failed to create account: {e}")
+
+    def loadContacts(self):
+        if not self.current_user:
+            return
+            
+        self.contactsList.clear()
+        try:
+            cursor = self.db_conn.cursor(dictionary=True)
+            cursor.execute("USE chat_app")
+            cursor.execute("SELECT id, username FROM users WHERE id != %s", (self.current_user['id'],))
+            contacts = cursor.fetchall()
+            
+            for contact in contacts:
+                self.contactsList.addItem(f"{contact['username']} (ID: {contact['id']})")
+        except Error as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to load contacts: {e}")
+
+    def startChat(self, item):
+        if not self.current_user:
+            return
+            
+        contact_text = item.text()
+        contact_id = int(contact_text.split("ID: ")[1].strip(")"))
+        
+        try:
+            cursor = self.db_conn.cursor(dictionary=True)
+            cursor.execute("USE chat_app")
+            cursor.execute("SELECT username FROM users WHERE id = %s", (contact_id,))
+            contact = cursor.fetchone()
+            
+            if not contact:
+                QMessageBox.warning(self, "Error", "Contact not found")
+                return
+                
+            self.current_chat = {
+                'id': contact_id,
+                'username': contact['username']
+            }
+            
+            self.chatPartnerLabel.setText(f"Chat with {self.current_chat['username']}")
+            self.loadChatHistory()
+            self.stackedLayout.setCurrentIndex(3)
+        except Error as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to start chat: {e}")
+
+    def loadChatHistory(self):
+        if not self.current_user or not self.current_chat:
+            return
+            
+        self.chatHistory.clear()
+        try:
+            cursor = self.db_conn.cursor(dictionary=True)
+            cursor.execute("USE chat_app")
+            cursor.execute('''
+            SELECT 
+                u.username as sender, 
+                m.message, 
+                m.sent_at 
+            FROM 
+                messages m
+            JOIN 
+                users u ON u.id = m.sender_id
+            WHERE 
+                (m.sender_id = %s AND m.receiver_id = %s)
+                OR 
+                (m.sender_id = %s AND m.receiver_id = %s)
+            ORDER BY 
+                m.sent_at
+            ''', (self.current_user['id'], self.current_chat['id'], 
+                  self.current_chat['id'], self.current_user['id']))
+            
+            messages = cursor.fetchall()
+            
+            for message in messages:
+                timestamp = str(message['sent_at']).split('.')[0]
+                self.chatHistory.append(f"[{timestamp}] <{message['sender']}> {message['message']}")
+            
+            self.chatHistory.verticalScrollBar().setValue(
+                self.chatHistory.verticalScrollBar().maximum())
+        except Error as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to load chat history: {e}")
+
+    def sendMessage(self):
+        if not self.current_user or not self.current_chat:
+            return
+            
+        message = self.messageInput.toPlainText().strip()
+        if not message:
+            return
+            
+        try:
+            cursor = self.db_conn.cursor()
+            cursor.execute("USE chat_app")
+            cursor.execute('''
+            INSERT INTO messages (sender_id, receiver_id, message)
+            VALUES (%s, %s, %s)
+            ''', (self.current_user['id'], self.current_chat['id'], message))
+            self.db_conn.commit()
+            
+            self.messageInput.clear()
+            self.loadChatHistory()
+        except Error as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to send message: {e}")
+
+    def logout(self):
+        self.current_user = None
+        self.stackedLayout.setCurrentIndex(0)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
