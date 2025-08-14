@@ -20,7 +20,7 @@ class ChatApp(QWidget):
             conn = mysql.connector.connect(
                 host='localhost',
                 user='root',        # Change to your MySQL username
-                password='admin'
+                password='admin',
                 database="textit" # Change to your MySQL password
             )
             return conn
@@ -31,11 +31,7 @@ class ChatApp(QWidget):
     def init_db_tables(self):
         try:
             cursor = self.db_conn.cursor()
-            
-            # Create database if not exists
-            cursor.execute("CREATE DATABASE IF NOT EXISTS chat_app")
-            cursor.execute("USE chat_app")
-            
+                        
             # Create users table
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -66,7 +62,7 @@ class ChatApp(QWidget):
             sys.exit(1)
 
     def initUI(self):
-        self.setWindowTitle('Text It Application (Login Window)')
+        self.setWindowTitle('TextIt Application (Login Window)')
         self.setGeometry(100, 100, 800, 600)
         
         # Stacked widgets for different views
@@ -100,7 +96,7 @@ class ChatApp(QWidget):
     def setupSignIn(self):
         layout = QVBoxLayout()
         
-        header = QLabel("Welcome to MySQL ChatApp")
+        header = QLabel("Welcome to TextIt")
         header.setStyleSheet("font-size: 20px; font-weight: bold;")
         header.setAlignment(Qt.AlignCenter)
         
@@ -150,7 +146,7 @@ class ChatApp(QWidget):
         self.phoneInput = QLineEdit()
         self.phoneInput.setPlaceholderText("Phone Number")
         
-        signUpButton = QPushButton("Submit")
+        signUpButton = QPushButton("Sign Up")
         signUpButton.clicked.connect(self.handleSignUp)
         
         backButton = QPushButton("Back to Sign In")
@@ -233,7 +229,7 @@ class ChatApp(QWidget):
         
         try:
             cursor = self.db_conn.cursor(dictionary=True)
-            cursor.execute("USE chat_app")
+            cursor.execute("USE textit")
             cursor.execute("SELECT id, username FROM users WHERE username = %s AND password = %s", 
                          (username, password))
             user = cursor.fetchone()
@@ -266,7 +262,7 @@ class ChatApp(QWidget):
         
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("USE chat_app")
+            cursor.execute("USE textit")
             cursor.execute("INSERT INTO users (username, password, phone) VALUES (%s, %s, %s)", 
                          (username, password, phone))
             self.db_conn.commit()
@@ -287,7 +283,7 @@ class ChatApp(QWidget):
         self.contactsList.clear()
         try:
             cursor = self.db_conn.cursor(dictionary=True)
-            cursor.execute("USE chat_app")
+            cursor.execute("USE textit")
             cursor.execute("SELECT id, username FROM users WHERE id != %s", (self.current_user['id'],))
             contacts = cursor.fetchall()
             
@@ -305,7 +301,7 @@ class ChatApp(QWidget):
         
         try:
             cursor = self.db_conn.cursor(dictionary=True)
-            cursor.execute("USE chat_app")
+            cursor.execute("USE textit")
             cursor.execute("SELECT username FROM users WHERE id = %s", (contact_id,))
             contact = cursor.fetchone()
             
@@ -331,7 +327,7 @@ class ChatApp(QWidget):
         self.chatHistory.clear()
         try:
             cursor = self.db_conn.cursor(dictionary=True)
-            cursor.execute("USE chat_app")
+            cursor.execute("USE textit")
             cursor.execute('''
             SELECT 
                 u.username as sender, 
@@ -371,7 +367,7 @@ class ChatApp(QWidget):
             
         try:
             cursor = self.db_conn.cursor()
-            cursor.execute("USE chat_app")
+            cursor.execute("USE textit")
             cursor.execute('''
             INSERT INTO messages (sender_id, receiver_id, message)
             VALUES (%s, %s, %s)
