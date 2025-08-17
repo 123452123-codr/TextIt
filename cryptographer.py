@@ -3,43 +3,48 @@ import random as r
 l = list("abcdefghijklmnopqrstuvwxyz")
 l1 = l.copy()
 key = []
+cipher = {}
 
-f = open("key.txt",'w+')
-if not f:
-    for i in range(26):
-        rint = r.randint(0,25)
-        key.append(l[rint])
-        l.pop(rint)
-    del l
+n = 25
+for i in range(26):
+    rint = r.randint(0,n)
+    key.append(l[rint])
+    l.pop(rint)
+    n -= 1
+del l
+
+for i in range(25):
+    k = l1[i]
+    v = key[i]
+    cipher[k] = v
+print("Cipher:",cipher)
         
 
-def encrypter(s):
+def encrypter():
+    s = input("Enter sentence:")
     encrypted_message = ""
-    ls = str(s).split()
+    ls = s.split()
     for i in ls:
         for j in i:
-            x = j
             word = ""
-            for k in l1:
-                if x == k:
-                    x = key[l1.index(k)]
-                    word += j
-        encrypted_message += str(word)+" "
-    return encrypted_message
+            for k,v in cipher.values():
+                if k == j:
+                    word += v
+            encrypted_message += str(word)+" "
+    print("Encrypted:",encrypted_message)
 
-def decrypter(s):
+def decrypter():
+    s = input("Enter sentence:")
     decrypted_message = ""
     ls = str(s).split()
     for i in ls:
         for j in i:
-            x = j
             word = ""
-            for k in key:
-                if x == k:
-                    x = l1[key.index(k)]
-                    word += j
+            for k,v in cipher:
+                if j == k:
+                    word += v
         decrypted_message += str(word)+" "
-    return decrypted_message
+    print("Decrypted:",decrypted_message)
 
 #main
 while True:
@@ -47,10 +52,10 @@ while True:
     ch = int(input("Enter choice:"))
     if ch == 1:
         s = input("Enter sentence:")
-        encrypter(s)
+        encrypter()
     elif ch == 2:
         s = input("Enter sentence:")
-        decrypter(s)
+        decrypter()
     elif ch == 3:
         break
     else:

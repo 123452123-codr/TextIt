@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 import mysql.connector
 from datetime import datetime
 from mysql.connector import Error
+import keyboard
 
 class ChatApp(QWidget):
     def __init__(self):
