@@ -27,7 +27,7 @@ def encrypter():
     for i in ls:
         for j in i:
             word = ""
-            for k,v in cipher.values():
+            for k,v in cipher.items():
                 if k == j:
                     word += v
             encrypted_message += str(word)+" "
