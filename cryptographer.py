@@ -40,7 +40,7 @@ def decrypter():
     for i in ls:
         for j in i:
             word = ""
-            for k,v in cipher:
+            for k,v in cipher.items():
                 if j == k:
                     word += v
         decrypted_message += str(word)+" "
