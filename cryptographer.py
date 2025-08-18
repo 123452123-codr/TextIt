@@ -6,7 +6,7 @@ key = []
 cipher = {}
 
 n = 25
-for i in range(26):
+for i in range(25):
     rint = r.randint(0,n)
     key.append(l[rint])
     l.pop(rint)
