@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QLineEdit, QPushButton, QLabel, QListWidget,
                              QStackedWidget, QMessageBox, QTextEdit)
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 import mysql.connector
 from datetime import datetime
@@ -14,6 +15,7 @@ class ChatApp(QWidget):
         self.current_user = None
         self.db_conn = self.create_db_connection()
         self.init_db_tables()
+        self.setWindowIcon(QIcon("Textit.png"))
         self.initUI()
 
     def create_db_connection(self):
