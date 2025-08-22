@@ -17,33 +17,44 @@ for i in range(25):
     k = l1[i]
     v = key[i]
     cipher[k] = v
-print("Cipher:",cipher)
+
+with open("cipher.txt","w+") as f:
+    if f.read() == None:
+        f.write(str(cipher))
         
 
 def encrypter():
     s = input("Enter sentence:")
     encrypted_message = ""
-    ls = s.split()
-    for i in ls:
-        for j in i:
-            word = ""
-            for k,v in cipher.items():
-                if k == j:
-                    word += v
-            encrypted_message += str(word)+" "
+    for i in s:
+        if i.isalpha():
+            if i.isupper():
+                for k,v in cipher.items():
+                    if i.lower() == k:
+                        encrypted_message += str(v).upper()
+            else:
+                for k,v in cipher.items():
+                    if i == k:
+                        encrypted_message += v
+        else:
+            encrypted_message += i
     print("Encrypted:",encrypted_message)
 
 def decrypter():
     s = input("Enter sentence:")
     decrypted_message = ""
-    ls = str(s).split()
-    for i in ls:
-        for j in i:
-            word = ""
-            for k,v in cipher.items():
-                if j == k:
-                    word += v
-        decrypted_message += str(word)+" "
+    for i in s:
+        if i.isalpha():
+            if i.isupper():
+                for k,v in cipher.items():
+                    if i.lower() == v:
+                        decrypted_message += str(k).upper()
+            else:
+                for k,v in cipher.items():
+                    if i == v:
+                        decrypted_message += k
+        else:
+            decrypted_message += i
     print("Decrypted:",decrypted_message)
 
 #main
@@ -51,13 +62,10 @@ while True:
     print("1. Encrypt message\n2. Decrypt message\n3.Exit")
     ch = int(input("Enter choice:"))
     if ch == 1:
-        s = input("Enter sentence:")
         encrypter()
     elif ch == 2:
-        s = input("Enter sentence:")
         decrypter()
     elif ch == 3:
         break
     else:
         print("Invalid input")
-
