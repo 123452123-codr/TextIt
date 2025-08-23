@@ -18,15 +18,16 @@ for i in range(25):
     v = key[i]
     cipher[k] = v
 
-with open("cipher.txt","w+") as f:
-    if f.read() == None:
-        f.write(str(cipher))
+'''with open("cipher.txt","w+") as f:
+    contents = f.read()
+    if len(contents) == 0:
+        pass'''
         
 
-def encrypter():
-    s = input("Enter sentence:")
+def encrypter(s):
+    s_iter = str(s)
     encrypted_message = ""
-    for i in s:
+    for i in s_iter:
         if i.isalpha():
             if i.isupper():
                 for k,v in cipher.items():
@@ -40,10 +41,10 @@ def encrypter():
             encrypted_message += i
     print("Encrypted:",encrypted_message)
 
-def decrypter():
-    s = input("Enter sentence:")
+def decrypter(s):
+    s_iter = str(s)
     decrypted_message = ""
-    for i in s:
+    for i in s_iter:
         if i.isalpha():
             if i.isupper():
                 for k,v in cipher.items():
@@ -62,9 +63,11 @@ while True:
     print("1. Encrypt message\n2. Decrypt message\n3.Exit")
     ch = int(input("Enter choice:"))
     if ch == 1:
-        encrypter()
+        s = input("Enter sentence:")
+        print("Encrypted:",encrypter(s))
     elif ch == 2:
-        decrypter()
+        s = input("Enter sentence:")
+        print("Decrypted:",decrypter(s))
     elif ch == 3:
         break
     else:

@@ -118,9 +118,7 @@ class ChatApp(QWidget):
         
         layout.addWidget(header)
         layout.addSpacing(20)
-        layout.addWidget(QLabel("Username:"))
         layout.addWidget(self.usernameInput)
-        layout.addWidget(QLabel("Password:"))
         layout.addWidget(self.passwordInput)
         layout.addSpacing(20)
         layout.addWidget(signInButton)
@@ -157,13 +155,9 @@ class ChatApp(QWidget):
         
         layout.addWidget(header)
         layout.addSpacing(20)
-        layout.addWidget(QLabel("Username:"))
         layout.addWidget(self.newUsername)
-        layout.addWidget(QLabel("Password:"))
         layout.addWidget(self.newPassword)
-        layout.addWidget(QLabel("Confirm Password:"))
         layout.addWidget(self.confirmPassword)
-        layout.addWidget(QLabel("Phone Number:"))
         layout.addWidget(self.phoneInput)
         layout.addSpacing(20)
         layout.addWidget(signUpButton)
