@@ -41,7 +41,6 @@ class ChatApp(QWidget):
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 username VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
-                phone VARCHAR(20) UNIQUE NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             ''')
@@ -100,13 +99,15 @@ class ChatApp(QWidget):
         layout = QVBoxLayout()
         
         header = QLabel("Welcome to TextIt")
-        header.setStyleSheet("font-size: 20px; font-weight: bold;")
+        header.setStyleSheet("font-size: 20px; font-weight: bold; font-style: italic;")
         header.setAlignment(Qt.AlignCenter)
         
-        self.usernameInput = QLineEdit()
+        self.usernameInput = QLineEdit(self)
+        self.usernameInput.resize(50,400)
         self.usernameInput.setPlaceholderText("Username")
         
-        self.passwordInput = QLineEdit()
+        self.passwordInput = QLineEdit(self)
+        self.passwordInput.resize(50,400)
         self.passwordInput.setPlaceholderText("Password")
         self.passwordInput.setEchoMode(QLineEdit.Password)
         
@@ -117,11 +118,13 @@ class ChatApp(QWidget):
         signUpButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(1))
         
         layout.addWidget(header)
-        layout.addSpacing(20)
+        layout.addSpacing(10)
         layout.addWidget(self.usernameInput)
+        layout.addSpacing(10)
         layout.addWidget(self.passwordInput)
-        layout.addSpacing(20)
+        layout.addSpacing(10)
         layout.addWidget(signInButton)
+        layout.addSpacing(10)
         layout.addWidget(signUpButton)
         
         self.signInPage.setLayout(layout)
@@ -130,22 +133,21 @@ class ChatApp(QWidget):
         layout = QVBoxLayout()
         
         header = QLabel("Create New Account")
-        header.setStyleSheet("font-size: 20px; font-weight: bold;")
+        header.setStyleSheet("font-size: 20px; font-weight: bold;font-style:Arial")
         header.setAlignment(Qt.AlignCenter)
         
-        self.newUsername = QLineEdit()
+        self.newUsername = QLineEdit(self)
         self.newUsername.setPlaceholderText("Username")
         
-        self.newPassword = QLineEdit()
+        self.newPassword = QLineEdit(self)
+        
         self.newPassword.setPlaceholderText("Password")
         self.newPassword.setEchoMode(QLineEdit.Password)
         
-        self.confirmPassword = QLineEdit()
+        self.confirmPassword = QLineEdit(self)
         self.confirmPassword.setPlaceholderText("Confirm Password")
         self.confirmPassword.setEchoMode(QLineEdit.Password)
-        
-        self.phoneInput = QLineEdit()
-        self.phoneInput.setPlaceholderText("Phone Number")
+    
         
         signUpButton = QPushButton("Sign Up")
         signUpButton.clicked.connect(self.handleSignUp)
@@ -156,10 +158,11 @@ class ChatApp(QWidget):
         layout.addWidget(header)
         layout.addSpacing(20)
         layout.addWidget(self.newUsername)
+        layout.addSpacing(10)
         layout.addWidget(self.newPassword)
+        layout.addSpacing(10)
         layout.addWidget(self.confirmPassword)
-        layout.addWidget(self.phoneInput)
-        layout.addSpacing(20)
+        layout.addSpacing(10)
         layout.addWidget(signUpButton)
         layout.addWidget(backButton)
         
@@ -173,7 +176,7 @@ class ChatApp(QWidget):
         
         logoutButton = QPushButton("Logout")
         logoutButton.clicked.connect(self.logout)
-        
+        self.loadContacts()
         refreshButton = QPushButton("Refresh Contacts")
         refreshButton.clicked.connect(self.loadContacts)
         
@@ -183,7 +186,6 @@ class ChatApp(QWidget):
         layout.addWidget(logoutButton)
         
         self.contactsPage.setLayout(layout)
-        self.loadContacts()
 
     def setupChat(self):
         layout = QVBoxLayout()
@@ -245,7 +247,6 @@ class ChatApp(QWidget):
         username = self.newUsername.text()
         password = self.newPassword.text()
         confirm = self.confirmPassword.text()
-        phone = self.phoneInput.text()
         
         if not username or not password:
             QMessageBox.warning(self, "Error", "Username and password are required")
@@ -253,23 +254,18 @@ class ChatApp(QWidget):
         if password != confirm:
             QMessageBox.warning(self, "Error", "Passwords do not match")
             return
-        if not phone:
-            QMessageBox.warning(self, "Error", "Phone number is required")
-            return
         
         try:
             cursor = self.db_conn.cursor()
             cursor.execute("USE textit")
-            cursor.execute("INSERT INTO users (username, password, phone) VALUES (%s, %s, %s)", 
-                         (username, password, phone))
+            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", 
+                         (username, password))
             self.db_conn.commit()
             
-            QMessageBox.information(self, "Success", "Account created successfully!")
-            self.stackedLayout.setCurrentIndex(0)
+            self.stackedLayout.setCurrentIndex(2)
             self.newUsername.clear()
             self.newPassword.clear()
             self.confirmPassword.clear()
-            self.phoneInput.clear()
         except Error as e:
             QMessageBox.warning(self, "Error", f"Failed to create account: {e}")
 
