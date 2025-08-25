@@ -23,7 +23,7 @@ class ChatApp(QWidget):
             conn = mysql.connector.connect(
                 host='localhost',
                 user='root',        # Change to your MySQL username
-                password='admin',
+                password='rez@123!',
                 database="textit" # Change to your MySQL password
             )
             return conn
@@ -111,11 +111,37 @@ class ChatApp(QWidget):
         self.passwordInput.setPlaceholderText("Password")
         self.passwordInput.setEchoMode(QLineEdit.Password)
         
-        signInButton = QPushButton("Sign In")
-        signInButton.clicked.connect(self.handleSignIn)
+        self.signInButton = QPushButton("Sign In")
+        self.signInButton.setFixedSize(150,50)
+        self.signInButton.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;  /* Green background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 25px;        /* Rounded corners */
+                font-size: 16px;             /* Font size */
+            }
+            QPushButton:hover {
+                background-color: #45a049;   /* Darker green on hover */
+            }
+        """)
+        self.signInButton.clicked.connect(self.handleSignIn)
         
-        signUpButton = QPushButton("Create Account")
-        signUpButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(1))
+        self.signUpButton = QPushButton("Create Account")
+        self.signUpButton.setFixedSize(150,50)
+        self.signUpButton.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;  /* Green background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 25px;        /* Rounded corners */
+                font-size: 16px;             /* Font size */
+            }
+            QPushButton:hover {
+                background-color: #45a049;   /* Darker green on hover */
+            }
+        """)
+        self.signUpButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(1))
         
         layout.addWidget(header)
         layout.addSpacing(10)
@@ -123,9 +149,9 @@ class ChatApp(QWidget):
         layout.addSpacing(10)
         layout.addWidget(self.passwordInput)
         layout.addSpacing(10)
-        layout.addWidget(signInButton)
+        layout.addWidget(self.signInButton)
         layout.addSpacing(10)
-        layout.addWidget(signUpButton)
+        layout.addWidget(self.signUpButton)
         
         self.signInPage.setLayout(layout)
 
@@ -149,11 +175,25 @@ class ChatApp(QWidget):
         self.confirmPassword.setEchoMode(QLineEdit.Password)
     
         
-        signUpButton = QPushButton("Sign Up")
-        signUpButton.clicked.connect(self.handleSignUp)
+        self.signUpButton = QPushButton("Sign Up")
+        self.signUpButton.setFixedSize(150,50)
+        self.signUpButton.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;  /* Green background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 25px;        /* Rounded corners */
+                font-size: 16px;             /* Font size */
+            }
+            QPushButton:hover {
+                background-color: #45a049;   /* Darker green on hover */
+            }
+        """)
+        self.signUpButton.clicked.connect(self.handleSignUp)
         
-        backButton = QPushButton("Back to Sign In")
-        backButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(0))
+        self.backButton = QPushButton("Back to Sign In")
+        self.backButton.setFixedSize(150,50)
+        self.backButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(0))
         
         layout.addWidget(header)
         layout.addSpacing(20)
@@ -163,8 +203,8 @@ class ChatApp(QWidget):
         layout.addSpacing(10)
         layout.addWidget(self.confirmPassword)
         layout.addSpacing(10)
-        layout.addWidget(signUpButton)
-        layout.addWidget(backButton)
+        layout.addWidget(self.signUpButton)
+        layout.addWidget(self.backButton)
         
         self.signUpPage.setLayout(layout)
 
@@ -174,16 +214,42 @@ class ChatApp(QWidget):
         self.contactsList = QListWidget()
         self.contactsList.itemClicked.connect(self.startChat)
         
-        logoutButton = QPushButton("Logout")
-        logoutButton.clicked.connect(self.logout)
+        self.logoutButton = QPushButton("Logout")
+        self.logoutButton.setFixedSize(150,50)
+        self.logoutButton.setStyleSheet("""
+            QPushButton {
+                background-color: #FF0000;  /* Red background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 25px;        /* Rounded corners */
+                font-size: 16px;             /* Font size */
+            }
+            QPushButton:hover {
+                background-color: #8B0000;   /* Darker green on hover */
+            }
+        """)
+        self.logoutButton.clicked.connect(self.logout)
         self.loadContacts()
-        refreshButton = QPushButton("Refresh Contacts")
-        refreshButton.clicked.connect(self.loadContacts)
+        self.refreshButton = QPushButton("Refresh Contacts")
+        self.refreshButton.setFixedSize(150,50)
+        self.refreshButton.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;  /* Green background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 25px;        /* Rounded corners */
+                font-size: 16px;             /* Font size */
+            }
+            QPushButton:hover {
+                background-color: #45a049;   /* Darker green on hover */
+            }
+        """)
+        self.refreshButton.clicked.connect(self.loadContacts)
         
         layout.addWidget(QLabel("Your Contacts:"))
         layout.addWidget(self.contactsList)
-        layout.addWidget(refreshButton)
-        layout.addWidget(logoutButton)
+        layout.addWidget(self.refreshButton)
+        layout.addWidget(self.logoutButton)
         
         self.contactsPage.setLayout(layout)
 
@@ -200,15 +266,41 @@ class ChatApp(QWidget):
         self.messageInput = QTextEdit()
         self.messageInput.setMaximumHeight(100)
         
-        sendButton = QPushButton("Send")
-        sendButton.clicked.connect(self.sendMessage)
+        self.sendButton = QPushButton("Send")
+        self.sendButton.setFixedSize(150,50)
+        self.sendButton.setStyleSheet("""
+            QPushButton {
+                background-color: #0000FF;  /* Green background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 25px;        /* Rounded corners */
+                font-size: 16px;             /* Font size */
+            }
+            QPushButton:hover {
+                background-color: #00008B;   /* Darker green on hover */
+            }
+        """)
+        self.sendButton.clicked.connect(self.sendMessage)
         
-        backButton = QPushButton("Back to Contacts")
-        backButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(2))
+        self.backButton = QPushButton("Back to Contacts")
+        self.backButton.setFixedSize(150,50)
+        self.backButton.setStyleSheet("""
+            QPushButton {
+                background-color: #ADD8E6;  /* Green background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 25px;        /* Rounded corners */
+                font-size: 16px;             /* Font size */
+            }
+            QPushButton:hover {
+                background-color: #00008B;   /* Darker green on hover */
+            }
+        """)
+        self.backButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(2))
         
         buttonLayout = QHBoxLayout()
-        buttonLayout.addWidget(backButton)
-        buttonLayout.addWidget(sendButton)
+        buttonLayout.addWidget(self.backButton)
+        buttonLayout.addWidget(self.sendButton)
         
         layout.addWidget(self.chatPartnerLabel)
         layout.addWidget(self.chatHistory)
