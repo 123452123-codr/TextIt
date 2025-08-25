@@ -23,7 +23,7 @@ class ChatApp(QWidget):
             conn = mysql.connector.connect(
                 host='localhost',
                 user='root',        # Change to your MySQL username
-                password='rez@123!',
+                password='admin',
                 database="textit" # Change to your MySQL password
             )
             return conn
