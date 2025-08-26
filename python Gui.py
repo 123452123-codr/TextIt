@@ -8,8 +8,8 @@ import mysql.connector
 from datetime import datetime
 from mysql.connector import Error
 import cryptographer as cr
+import os
 import json
-from pconst import const
 
 class ChatApp(QWidget):
     def __init__(self):
@@ -389,12 +389,24 @@ class ChatApp(QWidget):
         if password != confirm:
             QMessageBox.warning(self, "Error", "Passwords do not match")
             return
+        
+        flag_file = "flag.txt"
+        if not os.path.exists(flag_file):
 
-        const.cipher = cr.key_generator()
+            cipher = cr.key_generator()
+            with open("key.json","w") as f1:
+                json.dump(cipher,f1)
+            with open(flag_file,"w") as f:
+                f.write("Program has run.")
+        
+        else:
+            with open("key.json","r") as f:
+                cipher = json.load(f)
+
                 
         try:
             cursor = self.db_conn.cursor()
-            enc_password = cr.encrypter(password,const.cipher)
+            enc_password = cr.encrypter(password, cipher)
             
             cursor.execute("USE textit")
             cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", 
@@ -415,10 +427,11 @@ class ChatApp(QWidget):
         if not username or not password:
             QMessageBox.warning(self, "Error", "Please enter both username and password")
             return
-        
+        with open("key.json","r") as f:
+            cipher = json.load(f)
         try:
             cursor = self.db_conn.cursor(dictionary=True)
-            enc_password = cr.encrypter(password,const.cipher)
+            enc_password = cr.encrypter(password,cipher)
             cursor.execute("USE textit")
             cursor.execute("SELECT id, username FROM users WHERE username = %s AND password = %s", 
                          (username, enc_password))
@@ -506,9 +519,12 @@ class ChatApp(QWidget):
             
             messages = cursor.fetchall()
 
+            with open("key.json","r") as f:
+                cipher = json.load(f)
+
             for message in messages:
                 timestamp = str(message['sent_at']).split('.')[0]
-                dec_message = cr.decrypter(message['message'],const.cipher)
+                dec_message = cr.decrypter(message['message'],cipher)
                 self.chatHistory.append(f"[{timestamp}] <{message['sender']}> {dec_message}")
             
             self.chatHistory.verticalScrollBar().setValue(
@@ -524,9 +540,12 @@ class ChatApp(QWidget):
         if not message:
             return
         
+        with open("key.json","r") as f:
+            cipher = json.load(f)
+
         try:
             cursor = self.db_conn.cursor()
-            enc_message = cr.encrypter(message,const.cipher)
+            enc_message = cr.encrypter(message,cipher)
             cursor.execute("USE textit")
             cursor.execute('''
             INSERT INTO messages (sender_id, receiver_id, message)
