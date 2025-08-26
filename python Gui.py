@@ -179,14 +179,14 @@ class ChatApp(QWidget):
         self.signUpButton.setFixedSize(150,50)
         self.signUpButton.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;  /* Green background */
+                background-color: #0000FF;  /* Green background */
                 color: white;                /* White text */
                 border: none;                /* No border */
                 border-radius: 25px;        /* Rounded corners */
                 font-size: 16px;             /* Font size */
             }
             QPushButton:hover {
-                background-color: #45a049;   /* Darker green on hover */
+                background-color: #00008B;   /* Darker green on hover */
             }
         """)
         self.signUpButton.clicked.connect(self.handleSignUp)
@@ -218,14 +218,14 @@ class ChatApp(QWidget):
         self.logoutButton.setFixedSize(150,50)
         self.logoutButton.setStyleSheet("""
             QPushButton {
-                background-color: #FF0000;  /* Red background */
+                background-color: #0000FF;  /* Red background */
                 color: white;                /* White text */
                 border: none;                /* No border */
                 border-radius: 25px;        /* Rounded corners */
                 font-size: 16px;             /* Font size */
             }
             QPushButton:hover {
-                background-color: #8B0000;   /* Darker green on hover */
+                background-color: #00008B;   /* Darker green on hover */
             }
         """)
         self.logoutButton.clicked.connect(self.logout)
@@ -234,14 +234,14 @@ class ChatApp(QWidget):
         self.refreshButton.setFixedSize(150,50)
         self.refreshButton.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;  /* Green background */
+                background-color: #0000FF;  /* Green background */
                 color: white;                /* White text */
                 border: none;                /* No border */
                 border-radius: 25px;        /* Rounded corners */
                 font-size: 16px;             /* Font size */
             }
             QPushButton:hover {
-                background-color: #45a049;   /* Darker green on hover */
+                background-color: #00008B;   /* Darker green on hover */
             }
         """)
         self.refreshButton.clicked.connect(self.loadContacts)
