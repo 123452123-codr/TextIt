@@ -319,7 +319,7 @@ class ChatApp(QWidget):
         self.chatHistory = QTextEdit()
         self.chatHistory.setReadOnly(True)
         
-        self.messageInput = QTextEdit(self)
+        self.messageInput = QLineEdit(self)
         self.messageInput.setPlaceholderText("Enter text here")
         self.messageInput.setStyleSheet("""
             QLineEdit {
@@ -372,7 +372,6 @@ class ChatApp(QWidget):
         
         layout.addWidget(self.chatPartnerLabel)
         layout.addWidget(self.chatHistory)
-        layout.addWidget(QLabel("Your Message:"))
         layout.addWidget(self.messageInput)
         layout.addLayout(buttonLayout)
         
