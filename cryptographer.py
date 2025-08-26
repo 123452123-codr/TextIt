@@ -13,7 +13,7 @@ for i in range(25):
     n -= 1
 del l
 
-for i in range(25):
+for i in range(26):
     k = l1[i]
     v = key[i]
     cipher[k] = v
