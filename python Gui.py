@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 import mysql.connector
 from datetime import datetime
 from mysql.connector import Error
-import keyboard
+import cryptographer as cr
 
 class ChatApp(QWidget):
     def __init__(self):
@@ -23,7 +23,7 @@ class ChatApp(QWidget):
             conn = mysql.connector.connect(
                 host='localhost',
                 user='root',        # Change to your MySQL username
-                password='rez@123!',
+                password='admin',
                 database="textit" # Change to your MySQL password
             )
             return conn
@@ -105,24 +105,46 @@ class ChatApp(QWidget):
         self.usernameInput = QLineEdit(self)
         self.usernameInput.resize(50,400)
         self.usernameInput.setPlaceholderText("Username")
+        self.usernameInput.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #4CAF50; 
+                border-radius: 15px; 
+                padding: 10px; 
+                font-size: 20px; 
+            }
+            QLineEdit:focus {
+                border: 2px solid #FF5722;
+            }
+        """)
         
         self.passwordInput = QLineEdit(self)
         self.passwordInput.resize(50,400)
         self.passwordInput.setPlaceholderText("Password")
+        self.passwordInput.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #4CAF50; 
+                border-radius: 15px; 
+                padding: 10px; 
+                font-size: 20px; 
+            }
+            QLineEdit:focus {
+                border: 2px solid #FF5722;
+            }
+        """)
         self.passwordInput.setEchoMode(QLineEdit.Password)
         
         self.signInButton = QPushButton("Sign In")
         self.signInButton.setFixedSize(150,50)
         self.signInButton.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;  /* Green background */
-                color: white;                /* White text */
-                border: none;                /* No border */
-                border-radius: 25px;        /* Rounded corners */
-                font-size: 16px;             /* Font size */
+                background-color: #0000FF;  
+                color: white;                
+                border: none;               
+                border-radius: 25px;        
+                font-size: 16px;           
             }
             QPushButton:hover {
-                background-color: #45a049;   /* Darker green on hover */
+                background-color: #00008B;   /* Darker green on hover */
             }
         """)
         self.signInButton.clicked.connect(self.handleSignIn)
@@ -131,14 +153,14 @@ class ChatApp(QWidget):
         self.signUpButton.setFixedSize(150,50)
         self.signUpButton.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;  /* Green background */
-                color: white;                /* White text */
-                border: none;                /* No border */
-                border-radius: 25px;        /* Rounded corners */
-                font-size: 16px;             /* Font size */
+                background-color: #0000FF;  
+                color: white;                
+                border: none;                
+                border-radius: 25px;        
+                font-size: 16px;             
             }
             QPushButton:hover {
-                background-color: #45a049;   /* Darker green on hover */
+                background-color: #00008B;   
             }
         """)
         self.signUpButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(1))
@@ -149,9 +171,9 @@ class ChatApp(QWidget):
         layout.addSpacing(10)
         layout.addWidget(self.passwordInput)
         layout.addSpacing(10)
-        layout.addWidget(self.signInButton)
+        layout.addWidget(self.signInButton, alignment=Qt.AlignCenter)
         layout.addSpacing(10)
-        layout.addWidget(self.signUpButton)
+        layout.addWidget(self.signUpButton, alignment=Qt.AlignCenter)
         
         self.signInPage.setLayout(layout)
 
@@ -164,14 +186,46 @@ class ChatApp(QWidget):
         
         self.newUsername = QLineEdit(self)
         self.newUsername.setPlaceholderText("Username")
+        self.newUsername.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #4CAF50; 
+                border-radius: 15px; 
+                padding: 10px; 
+                font-size: 20px; 
+            }
+            QLineEdit:focus {
+                border: 2px solid #FF5722;
+            }
+        """)
         
         self.newPassword = QLineEdit(self)
-        
         self.newPassword.setPlaceholderText("Password")
+        self.newPassword.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #4CAF50; 
+                border-radius: 15px; 
+                padding: 10px; 
+                font-size: 20px; 
+            }
+            QLineEdit:focus {
+                border: 2px solid #FF5722;
+            }
+        """)
         self.newPassword.setEchoMode(QLineEdit.Password)
         
         self.confirmPassword = QLineEdit(self)
         self.confirmPassword.setPlaceholderText("Confirm Password")
+        self.confirmPassword.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #4CAF50; 
+                border-radius: 15px; 
+                padding: 10px; 
+                font-size: 20px; 
+            }
+            QLineEdit:focus {
+                border: 2px solid #FF5722;
+            }
+        """)
         self.confirmPassword.setEchoMode(QLineEdit.Password)
     
         
@@ -179,14 +233,14 @@ class ChatApp(QWidget):
         self.signUpButton.setFixedSize(150,50)
         self.signUpButton.setStyleSheet("""
             QPushButton {
-                background-color: #0000FF;  /* Green background */
-                color: white;                /* White text */
-                border: none;                /* No border */
-                border-radius: 25px;        /* Rounded corners */
-                font-size: 16px;             /* Font size */
+                background-color: #0000FF;  
+                color: white;                
+                border: none;              
+                border-radius: 25px;       
+                font-size: 16px;         
             }
             QPushButton:hover {
-                background-color: #00008B;   /* Darker green on hover */
+                background-color: #00008B;  
             }
         """)
         self.signUpButton.clicked.connect(self.handleSignUp)
@@ -203,8 +257,8 @@ class ChatApp(QWidget):
         layout.addSpacing(10)
         layout.addWidget(self.confirmPassword)
         layout.addSpacing(10)
-        layout.addWidget(self.signUpButton)
-        layout.addWidget(self.backButton)
+        layout.addWidget(self.signUpButton, alignment=Qt.AlignCenter)
+        layout.addWidget(self.backButton, alignment=Qt.AlignCenter)
         
         self.signUpPage.setLayout(layout)
 
@@ -218,14 +272,14 @@ class ChatApp(QWidget):
         self.logoutButton.setFixedSize(150,50)
         self.logoutButton.setStyleSheet("""
             QPushButton {
-                background-color: #0000FF;  /* Red background */
-                color: white;                /* White text */
-                border: none;                /* No border */
-                border-radius: 25px;        /* Rounded corners */
-                font-size: 16px;             /* Font size */
+                background-color: #0000FF; 
+                color: white;                
+                border: none;               
+                border-radius: 25px;      
+                font-size: 16px;           
             }
             QPushButton:hover {
-                background-color: #00008B;   /* Darker green on hover */
+                background-color: #00008B; 
             }
         """)
         self.logoutButton.clicked.connect(self.logout)
@@ -234,14 +288,14 @@ class ChatApp(QWidget):
         self.refreshButton.setFixedSize(150,50)
         self.refreshButton.setStyleSheet("""
             QPushButton {
-                background-color: #0000FF;  /* Green background */
-                color: white;                /* White text */
-                border: none;                /* No border */
-                border-radius: 25px;        /* Rounded corners */
-                font-size: 16px;             /* Font size */
+                background-color: #0000FF;  
+                color: white;              
+                border: none;              
+                border-radius: 25px;       
+                font-size: 16px;           
             }
             QPushButton:hover {
-                background-color: #00008B;   /* Darker green on hover */
+                background-color: #00008B;  
             }
         """)
         self.refreshButton.clicked.connect(self.loadContacts)
@@ -263,21 +317,33 @@ class ChatApp(QWidget):
         self.chatHistory = QTextEdit()
         self.chatHistory.setReadOnly(True)
         
-        self.messageInput = QTextEdit()
-        self.messageInput.setMaximumHeight(100)
+        self.messageInput = QTextEdit(self)
+        self.messageInput.setPlaceholderText("Enter text here")
+        self.messageInput.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #4CAF50; 
+                border-radius: 15px; 
+                padding: 10px; 
+                font-size: 20px; 
+            }
+            QLineEdit:focus {
+                border: 2px solid #FF5722;
+            }
+        """)
+        
         
         self.sendButton = QPushButton("Send")
         self.sendButton.setFixedSize(150,50)
         self.sendButton.setStyleSheet("""
             QPushButton {
-                background-color: #0000FF;  /* Green background */
-                color: white;                /* White text */
-                border: none;                /* No border */
-                border-radius: 25px;        /* Rounded corners */
-                font-size: 16px;             /* Font size */
+                background-color: #0000FF;  
+                color: white;                
+                border: none;               
+                border-radius: 25px;       
+                font-size: 16px;            
             }
             QPushButton:hover {
-                background-color: #00008B;   /* Darker green on hover */
+                background-color: #00008B;  
             }
         """)
         self.sendButton.clicked.connect(self.sendMessage)
@@ -286,14 +352,14 @@ class ChatApp(QWidget):
         self.backButton.setFixedSize(150,50)
         self.backButton.setStyleSheet("""
             QPushButton {
-                background-color: #ADD8E6;  /* Green background */
-                color: white;                /* White text */
-                border: none;                /* No border */
-                border-radius: 25px;        /* Rounded corners */
-                font-size: 16px;             /* Font size */
+                background-color: #ADD8E6;  
+                color: white;               
+                border: none;                
+                border-radius: 25px;       
+                font-size: 16px;             
             }
             QPushButton:hover {
-                background-color: #00008B;   /* Darker green on hover */
+                background-color: #00008B;   
             }
         """)
         self.backButton.clicked.connect(lambda: self.stackedLayout.setCurrentIndex(2))
@@ -320,9 +386,10 @@ class ChatApp(QWidget):
         
         try:
             cursor = self.db_conn.cursor(dictionary=True)
+            enc_password = cr.encrypter(password,cipher)
             cursor.execute("USE textit")
             cursor.execute("SELECT id, username FROM users WHERE username = %s AND password = %s", 
-                         (username, password))
+                         (username, enc_password))
             user = cursor.fetchone()
             
             if user:
@@ -348,11 +415,16 @@ class ChatApp(QWidget):
             return
         
         try:
+            global cipher
             cursor = self.db_conn.cursor()
+            cipher = cr.key_generator()
+            enc_password = cr.encrypter(password,cipher)
+            
             cursor.execute("USE textit")
             cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", 
-                         (username, password))
+                         (username, enc_password))
             self.db_conn.commit()
+            
             
             self.stackedLayout.setCurrentIndex(2)
             self.newUsername.clear()
