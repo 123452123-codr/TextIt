@@ -8,6 +8,8 @@ import mysql.connector
 from datetime import datetime
 from mysql.connector import Error
 import cryptographer as cr
+import json
+from pconst import const
 
 class ChatApp(QWidget):
     def __init__(self):
@@ -302,8 +304,8 @@ class ChatApp(QWidget):
         
         layout.addWidget(QLabel("Your Contacts:"))
         layout.addWidget(self.contactsList)
-        layout.addWidget(self.refreshButton)
-        layout.addWidget(self.logoutButton)
+        layout.addWidget(self.refreshButton, alignment=Qt.AlignCenter)
+        layout.addWidget(self.logoutButton, alignment=Qt.AlignCenter)
         
         self.contactsPage.setLayout(layout)
 
@@ -375,6 +377,36 @@ class ChatApp(QWidget):
         layout.addLayout(buttonLayout)
         
         self.chatPage.setLayout(layout)
+    
+    def handleSignUp(self):
+        username = self.newUsername.text()
+        password = self.newPassword.text()
+        confirm = self.confirmPassword.text()
+        
+        if not username or not password:
+            QMessageBox.warning(self, "Error", "Username and password are required")
+            return
+        if password != confirm:
+            QMessageBox.warning(self, "Error", "Passwords do not match")
+            return
+
+        const.cipher = cr.key_generator()
+                
+        try:
+            cursor = self.db_conn.cursor()
+            enc_password = cr.encrypter(password,const.cipher)
+            
+            cursor.execute("USE textit")
+            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", 
+                         (username, enc_password))
+            self.db_conn.commit()
+            
+            self.stackedLayout.setCurrentIndex(2)
+            self.newUsername.clear()
+            self.newPassword.clear()
+            self.confirmPassword.clear()
+        except Error as e:
+            QMessageBox.warning(self, "Error", f"Failed to create account: {e}")
 
     def handleSignIn(self):
         username = self.usernameInput.text()
@@ -386,7 +418,7 @@ class ChatApp(QWidget):
         
         try:
             cursor = self.db_conn.cursor(dictionary=True)
-            enc_password = cr.encrypter(password,cipher)
+            enc_password = cr.encrypter(password,const.cipher)
             cursor.execute("USE textit")
             cursor.execute("SELECT id, username FROM users WHERE username = %s AND password = %s", 
                          (username, enc_password))
@@ -401,37 +433,6 @@ class ChatApp(QWidget):
                 QMessageBox.warning(self, "Error", "Invalid username or password")
         except Error as e:
             QMessageBox.critical(self, "Database Error", f"Failed to sign in: {e}")
-
-    def handleSignUp(self):
-        username = self.newUsername.text()
-        password = self.newPassword.text()
-        confirm = self.confirmPassword.text()
-        
-        if not username or not password:
-            QMessageBox.warning(self, "Error", "Username and password are required")
-            return
-        if password != confirm:
-            QMessageBox.warning(self, "Error", "Passwords do not match")
-            return
-        
-        try:
-            global cipher
-            cursor = self.db_conn.cursor()
-            cipher = cr.key_generator()
-            enc_password = cr.encrypter(password,cipher)
-            
-            cursor.execute("USE textit")
-            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", 
-                         (username, enc_password))
-            self.db_conn.commit()
-            
-            
-            self.stackedLayout.setCurrentIndex(2)
-            self.newUsername.clear()
-            self.newPassword.clear()
-            self.confirmPassword.clear()
-        except Error as e:
-            QMessageBox.warning(self, "Error", f"Failed to create account: {e}")
 
     def loadContacts(self):
         if not self.current_user:
@@ -504,10 +505,11 @@ class ChatApp(QWidget):
                   self.current_chat['id'], self.current_user['id']))
             
             messages = cursor.fetchall()
-            
+
             for message in messages:
                 timestamp = str(message['sent_at']).split('.')[0]
-                self.chatHistory.append(f"[{timestamp}] <{message['sender']}> {message['message']}")
+                dec_message = cr.decrypter(message['message'],const.cipher)
+                self.chatHistory.append(f"[{timestamp}] <{message['sender']}> {dec_message}")
             
             self.chatHistory.verticalScrollBar().setValue(
                 self.chatHistory.verticalScrollBar().maximum())
@@ -521,14 +523,15 @@ class ChatApp(QWidget):
         message = self.messageInput.toPlainText().strip()
         if not message:
             return
-            
+        
         try:
             cursor = self.db_conn.cursor()
+            enc_message = cr.encrypter(message,const.cipher)
             cursor.execute("USE textit")
             cursor.execute('''
             INSERT INTO messages (sender_id, receiver_id, message)
             VALUES (%s, %s, %s)
-            ''', (self.current_user['id'], self.current_chat['id'], message))
+            ''', (self.current_user['id'], self.current_chat['id'], enc_message))
             self.db_conn.commit()
             
             self.messageInput.clear()

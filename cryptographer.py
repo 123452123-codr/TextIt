@@ -7,19 +7,19 @@ def key_generator():
     cipher = {}
 
     n = 25
-    for i in range(25):
+    for i in range(26):
         rint = r.randint(0,n)
         key.append(l[rint])
         l.pop(rint)
         n -= 1
     del l
 
-    for i in range(25):
+    for i in range(26):
         k = l1[i]
         v = key[i]
         cipher[k] = v
-    print(l1)
-    print(cipher)
+    
+    return cipher
  
 def encrypter(s,cipher):
     s_iter = str(s)
@@ -36,7 +36,7 @@ def encrypter(s,cipher):
                         encrypted_message += v
         else:
             encrypted_message += i
-    print("Encrypted:",encrypted_message)
+    return encrypted_message
 
 def decrypter(s,cipher):
     s_iter = str(s)
@@ -53,6 +53,4 @@ def decrypter(s,cipher):
                         decrypted_message += k
         else:
             decrypted_message += i
-    print("Decrypted:",decrypted_message)
-
-key_generator()
+    return decrypted_message
